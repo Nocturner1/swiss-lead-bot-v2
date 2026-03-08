@@ -27,7 +27,7 @@ jobs:
           python weekly_lead_scraper.py
       
       - name: Upload Lead Files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: weekly-leads
           path: |
