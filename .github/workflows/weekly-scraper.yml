@@ -1,0 +1,44 @@
+name: Weekly Lead Scraper
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  scrape-leads:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install Dependencies
+        run: |
+          pip install requests beautifulsoup4 lxml
+      
+      - name: Run Lead Scraper
+        run: |
+          python weekly_lead_scraper.py
+      
+      - name: Upload Lead Files
+        uses: actions/upload-artifact@v3
+        with:
+          name: weekly-leads
+          path: |
+            leads_*.json
+            leads_*.csv
+          retention-days: 90
+      
+      - name: Commit Results to Repo
+        run: |
+          git config user.name "Lead Bot"
+          git config user.email "bot@swiss-lead-bot.com"
+          git add leads_*.json leads_*.csv
+          git commit -m "📊 Wöchentliche Leads - $(date +'%Y-W%U')" || echo "No changes"
+          git push || echo "Nothing to push"
